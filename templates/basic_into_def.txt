@@ -8,9 +8,10 @@
         "spear": 20
       }
     },
-    "farm": {
-      "spear": 5
-    }
+    "farm": [
+        {"spear": 5, "sword": 2},
+        {"spear": 10}
+    ]
   },
   {
     "building": "barracks",

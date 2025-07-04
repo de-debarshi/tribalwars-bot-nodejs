@@ -1,16 +1,18 @@
 {
-  "lastUpdated": "2025-07-04T03:40:04.049Z",
+  "lastUpdated": "2025-07-04T19:57:21.957Z",
   "villages": [
     {
       "id": "3095",
+      "name": "Jijo 001 (454|530) K54",
       "buildingLevels": {
-        "main": 3,
+        "main": 5,
         "barracks": 2,
+        "smith": 1,
         "place": 1,
         "market": 2,
-        "wood": 8,
-        "stone": 5,
-        "iron": 2,
+        "wood": 10,
+        "stone": 7,
+        "iron": 5,
         "farm": 1,
         "storage": 3,
         "hide": 1
@@ -18,16 +20,17 @@
     },
     {
       "id": "3097",
+      "name": "Jijo 002 (453|533) K54",
       "buildingLevels": {
         "main": 3,
-        "barracks": 1,
+        "barracks": 2,
         "place": 1,
-        "market": 1,
-        "wood": 5,
-        "stone": 5,
-        "iron": 2,
+        "market": 2,
+        "wood": 9,
+        "stone": 6,
+        "iron": 3,
         "farm": 1,
-        "storage": 2,
+        "storage": 3,
         "hide": 1
       }
     }

@@ -96,22 +96,22 @@ async function main() {
         } catch (err) {
             console.error('Error:', err.message);
         }
-        const delay = 60 + Math.floor(Math.random() * 10);
-        console.log('Will continue after: ' + delay + ' seconds');
+        const delay = 300 + Math.floor(Math.random() * 10);
+        console.log('Will continue after: ' + ((delay/60).toFixed(0)) + ' minutes ' + (delay % 60) + ' seconds');
         await sleep(delay * 1000);
     }
 }
 
-// Helper to get current troop counts from barracks page
+// Helper to get current troop counts from rally point page
 async function getCurrentTroopCounts(villageId, BASE_URL, client) {
-  // Fetch barracks page and parse troop counts from the table
-  const barracksUrl = `${BASE_URL}/game.php?village=${villageId}&screen=barracks`;
-  const getRes = await client.get(barracksUrl, {
+  // Fetch rally point page and parse troop counts from the table
+  const rallyUrl = `${BASE_URL}/game.php?village=${villageId}&screen=place`;
+  const getRes = await client.get(rallyUrl, {
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
-      'Referer': barracksUrl,
+      'Referer': rallyUrl,
       'Upgrade-Insecure-Requests': '1',
       'Cache-Control': 'no-cache',
       'Pragma': 'no-cache',
@@ -123,17 +123,10 @@ async function getCurrentTroopCounts(villageId, BASE_URL, client) {
   const $ = cheerio.load(html);
   const troopCounts = {};
   // Parse the "In the village/total" column for each unit
-  $('input.recruit_unit').each((_, el) => {
+  $('input.unitsInput').each((_, el) => {
     const name = $(el).attr('name');
-    // Find the parent row and the "In the village/total" cell
-    const row = $(el).closest('tr');
-    const countCell = row.find('td').eq(2); // 3rd column
-    if (countCell.length) {
-      const text = countCell.text().trim();
-      // Format: "10/10" or "0/0"
-      const [inVillage] = text.split('/').map(x => parseInt(x.trim(), 10));
-      troopCounts[name] = isNaN(inVillage) ? 0 : inVillage;
-    }
+    const total = $(el).data('allCount');
+    troopCounts[name] = total;
   });
   return troopCounts;
 }
@@ -214,7 +207,7 @@ async function troopRecruitmentCycle(village, BASE_URL, client, buildingLevels, 
 async function farmingCycle(village, BASE_URL, client, CSRF_TOKEN, buildingLevels) {
   // Refresh io cookie by visiting the map page once per farming loop
   const mapUrl = `${BASE_URL}/game.php?village=${village.id}&screen=map`;
-  console.log(`[FARM][COOKIE] Fetching map page to refresh io cookie: ${mapUrl}`);
+  //console.log(`[FARM][COOKIE] Fetching map page to refresh io cookie: ${mapUrl}`);
   await client.get(mapUrl, {
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -230,7 +223,7 @@ async function farmingCycle(village, BASE_URL, client, CSRF_TOKEN, buildingLevel
   // 1. Get farm template for this village (from troop stage config)
   const troopStage = getCurrentTroopStage(village.id, buildingLevels);
   if (!troopStage || !troopStage.farm) {
-    console.log(`[FARM] Village ${village.id}: No farm template found or enabled.`);
+    console.log(`[FARM] Village ${village.name}: No farm template found or enabled.`);
     return;
   }
   let farmTemplates = troopStage.farm;
@@ -240,15 +233,15 @@ async function farmingCycle(village, BASE_URL, client, CSRF_TOKEN, buildingLevel
   // Get this village's coordinates (from map)
   const myVillage = getVillageCoords(village.id);
   if (!myVillage) {
-    console.warn(`[FARM] Village ${village.id}: Could not find coordinates in map.`);
+    console.warn(`[FARM] Village ${village.name}: Could not find coordinates in map.`);
     return;
   }
   const nearestFarms = findNearestFarms(myVillage.x, myVillage.y, farms, 50);
   // 3. Get current troop counts (from barracks page) using helper
   const troopCounts = await getCurrentTroopCounts(village.id, BASE_URL, client);
-  console.log(`[FARM] Village ${village.id}: Troop counts:`, troopCounts);
-  console.log(`[FARM] Village ${village.id}: Farm templates:`, farmTemplates);
-  console.log(`[FARM] Village ${village.id}: Nearest farm targets:`, nearestFarms.length);
+  console.log(`[FARM] Village ${village.name}: Troop counts:`, troopCounts);
+  console.log(`[FARM] Village ${village.name}: Farm templates:`, farmTemplates);
+  //console.log(`[FARM] Village ${village.name}: Nearest farm targets:`, nearestFarms.length);
   // 4. For each farm template, send attacks to nearest farms if enough troops
   let farmIdx = 0;
   let sent = 0;
@@ -269,7 +262,7 @@ async function farmingCycle(village, BASE_URL, client, CSRF_TOKEN, buildingLevel
       }
 
       if (!canSend) {
-        console.log(`[FARM] Village ${village.id}: Not enough troops for template`, farmUnits, 'Missing:', missing.join(', '));
+        console.log(`[FARM] Village ${village.name}: Not enough troops for template`, farmUnits, 'Missing:', missing.join(', '));
         continue;
       }
 
@@ -278,6 +271,7 @@ async function farmingCycle(village, BASE_URL, client, CSRF_TOKEN, buildingLevel
       try {
         await sendFarmAttack({
           villageId: village.id,
+          villageName: village.name,
           targetId: farm.id,
           targetX: farm.x,
           targetY: farm.y,
@@ -294,24 +288,24 @@ async function farmingCycle(village, BASE_URL, client, CSRF_TOKEN, buildingLevel
 
         sent++;
         templateUsed = true;
-        console.log(`[FARM] Village ${village.id}: Sent attack to (${farm.x},${farm.y}) using template`, farmUnits);
+        console.log(`[FARM] Village ${village.name}: Sent attack to (${farm.x},${farm.y}) using template`, farmUnits);
         await sleep(1000 + Math.floor(Math.random() * 2000));
         break; // Break out of template loop to try same farmIdx with remaining troops
       } catch (err) {
-        console.error(`[FARM] Village ${village.id}: Failed to send farm attack to (${farm.x},${farm.y}):`, err.message);
+        console.error(`[FARM] Village ${village.name}: Failed to send farm attack to (${farm.x},${farm.y}):`, err.message);
       }
     }
 
     if (!templateUsed) {
-      console.log(`[FARM] Village ${village.id}: Not enough troops for any template. Stopping cycle.`);
+      console.log(`[FARM] Village ${village.name}: Not enough troops for any template. Stopping cycle.`);
       break;
     }
   }
 
   if (sent === 0) {
-    console.log(`[FARM] Village ${village.id}: No farm attacks sent this cycle.`);
+    console.log(`[FARM] Village ${village.name}: No farm attacks sent this cycle.`);
   } else {
-    console.log(`[FARM] Village ${village.id}: Sent ${sent} farm attacks this cycle.`);
+    console.log(`[FARM] Village ${village.name}: Sent ${sent} farm attacks this cycle.`);
   }
 }
 
@@ -319,7 +313,6 @@ async function startVillageCycle() {
     let villageData = loadVillageData();
   
     for (const village of villageData.villages) {
-      console.log(village.id);
       const mainScreenUrl = `${BASE_URL}/game.php?village=${village.id}&screen=main`;
 
       // 1. Get building levels (from main page)
@@ -390,7 +383,7 @@ async function startVillageCycle() {
           virtualResources.iron -= required.iron;
 
           // Build!
-          console.log(`➡️ Village: ${village.id} Dispatching: ${building} to level ${currentLevel + 1}`);
+          console.log(`➡️ Village: ${village.name} Dispatching: ${building} to level ${currentLevel + 1}`);
           try {
             await upgradeBuilding({
               buildingId: building,
@@ -404,17 +397,17 @@ async function startVillageCycle() {
             plannedSet.add(`${building}:${level}`);
             dispatched++;
           } catch (err) {
-            console.error(`❌ Village: ${village.id} Failed to upgrade ${building}:`, err.message);
+            console.error(`❌ Village: ${village.name} Failed to upgrade ${building}:`, err.message);
           }
 
           i++;
         }
 
         if (dispatched === 0) {
-          console.log(`✅ Village: ${village.id} No upgrades possible in lookahead window.`);
+          console.log(`✅ Village: ${village.name} No upgrades possible in lookahead window.`);
         }
       } else {
-        console.log(`⏳ Village: ${village.id} Queue full, skipping upgrade.`);
+        console.log(`⏳ Village: ${village.name} Queue full, skipping upgrade.`);
       }
 
       // 3. Troop recruitment cycle (after building upgrades)
@@ -450,7 +443,7 @@ async function startVillageCycle() {
       }
       await sleep(delay * 1000); */
       // Add a small delay between villages to avoid overlap
-      await sleep(1000);
+      await sleep(1013);
     }
 }
 async function initializeBot() {
@@ -485,8 +478,14 @@ async function initializeBot() {
 
     $('#production_table .quickedit-vn').each((i, el) => {
         const id = $(el).attr('data-id');
+        const name = $(el).find('.quickedit-label').text().trim();
         if (id && !existingIds.includes(id)) {
             villageData.villages.push({ id });
+        }
+        console.log(name);
+        const village = villageData.villages.find((v) => v.id == id);
+        if (village) {
+            village.name = name;
         }
     });
 

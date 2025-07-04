@@ -1,6 +1,6 @@
 {
   "BASE_URL": "https://us80.tribalwars.us",
-  "COOKIE_STRING": "cid=521568355; us_auth=4df70337a178:4495fd020221b8974160fe3b91bbcc2ff1809fe1b2be2c824035ea1e6630bca5; sid=0%3A18a10fc739fac79d1e8374b5f1fb91d45a1b235e1d66a73de79447767220be041ee7e1112f3d9c41544614096cd59cffe4b3320cbbef17a503a2b035b66e038a; global_village_id=3095; websocket_available=true; io=rJ5_0iT_wXJGe3nsAFUZ",
+  "COOKIE_STRING": "cid=521568355; us_auth=4df70337a178:4495fd020221b8974160fe3b91bbcc2ff1809fe1b2be2c824035ea1e6630bca5; sid=0%3Af9ca448fd0ac885113461bbe079d7a1240378813bbca585030f2a25a9a9d58e05a39210a6112ae48f2187d203367084323cdfe9567c1deaf2f032930b39a9c84; global_village_id=3095; websocket_available=true; io=wWtYnZj2vYIixaLWAJFu",
   "USER_AGENT": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
   "ACCEPT_HTML": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
   "ACCEPT_JSON": "application/json, text/javascript, */*; q=0.01",
