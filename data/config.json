@@ -1,0 +1,20 @@
+{
+  "enabledBuildings": [
+    "main",
+    "barracks",
+    "place",
+    "market",
+    "wood",
+    "stone",
+    "iron",
+    "farm",
+    "storage",
+    "hide",
+    "wall",
+    "smith",
+    "stable",
+    "garage",
+    "watchtower",
+    "snob"
+  ]
+} 
