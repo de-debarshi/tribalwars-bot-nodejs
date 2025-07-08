@@ -49,6 +49,14 @@ A fully automated bot for the browser game [Tribal Wars](https://www.tribalwars.
    pm2 start ecosystem.config.cjs
    ```
 
+## Screenshots
+
+### Tribal Wars Game
+![Tribal Wars Game](assets/game.png)
+
+### Bot Running in Terminal
+![Bot Terminal Output](assets/bot_terminal.png)
+
 ## Disclaimer
 
 This bot is for educational purposes only. Using automation in Tribal Wars may violate the game's terms of service and can result in bans. Use at your own risk.
