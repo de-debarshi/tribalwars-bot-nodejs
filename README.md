@@ -2,6 +2,14 @@
 
 A fully automated bot for the browser game [Tribal Wars](https://www.tribalwars.net/), built in Node.js. This project demonstrates advanced web automation, scraping, and game strategy logic, making it a great showcase for software engineering, automation, and reverse engineering skills.
 
+## Screenshots
+
+### Tribal Wars Game
+![Tribal Wars Game](assets/game.png)
+
+### Bot Running in Terminal
+![Bot Terminal Output](assets/bot_terminal.png)
+
 ## Features
 
 - **Automated Building Upgrades:** Follows a configurable build plan to upgrade village buildings efficiently, checking for resources and queue limits.
@@ -48,14 +56,6 @@ A fully automated bot for the browser game [Tribal Wars](https://www.tribalwars.
    ```bash
    pm2 start ecosystem.config.cjs
    ```
-
-## Screenshots
-
-### Tribal Wars Game
-![Tribal Wars Game](assets/game.png)
-
-### Bot Running in Terminal
-![Bot Terminal Output](assets/bot_terminal.png)
 
 ## Disclaimer
 
